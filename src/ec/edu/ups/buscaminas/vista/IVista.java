@@ -6,6 +6,8 @@ import ec.edu.ups.buscaminas.model.Tablero;
 public interface IVista {
 	void mostrarTablero(Tablero tablero);
     void mostrarMensaje(String mensaje);
-    String solicitarCoordenada(); // Devuelve algo como "A5"
-    boolean confirmarSalir();
+    String solicitarCoordenada(); // Solicita una coordenada (ej: "A5")
+    //Pregunta al jugador si desea empezar una nueva partida (usado para el reinicio).
+    //Devuelve true si desea jugar de nuevo, false si desea salir
+    boolean confirmarNuevaPartida();
 }
