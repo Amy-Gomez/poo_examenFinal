@@ -10,90 +10,143 @@ public class ControladorJuego {
 	private Tablero tablero;
     private IVista vista;
     private boolean juegoTerminado;
-
+    private final int FILAS= 10;
+    private final int COLUMNAS= 10;
+    
     public ControladorJuego(IVista vista) {
         this.vista = vista;
-        this.tablero = new Tablero(); // Se crea el tablero y se ponen las minas automáticamente
         this.juegoTerminado = false;
     }
-
+    //Inicia el bucle principal del programa, que maneja múltiples partidas
     public void iniciarJuego() {
         vista.mostrarMensaje("=== BUSCAMINAS 1.0 ===");
+        boolean continuarJugando= true;
         
-        while (!juegoTerminado) {
-            vista.mostrarTablero(tablero);
-            String entrada = vista.solicitarCoordenada();
+     // Bucle extermo: Controla si el jugador quiere iniciar nuevas partidas
+        
+        while (continuarJugando) {
+            
+            this.tablero = new Tablero(); 
+            this.juegoTerminado = false;
+            vista.mostrarMensaje("¡Nueva Partida Iniciada! Use D A5 (Descubrir) o M B7 (Marcar/Bandera). O escriba SALIR si desea finalizar el juego.");
 
-            // Validar si el usuario quiere salir
-            if (entrada.equalsIgnoreCase("SALIR")) {
-                juegoTerminado = true;
-                vista.mostrarMensaje("Juego cancelado.");
+            // Bucle interno: Controla el flujo de una sola partida
+            while (!juegoTerminado) {
+                vista.mostrarTablero(tablero);
+                String entrada = vista.solicitarJugada(); 
+
+                // 2. Control de Salida
+                if (entrada.equalsIgnoreCase("SALIR")) {
+                    juegoTerminado = true;
+                    continuarJugando = false; 
+                    vista.mostrarMensaje("Juego cancelado. ¡Hasta pronto!");
+                    break; 
+                }
+
+                procesarJugada(entrada);
+                
+                // 3. Verificación de Victoria/Derrota
+                if (juegoTerminado) {
+                    vista.mostrarTablero(tablero); 
+                } else if (verificarVictoria()) {
+                    vista.mostrarTablero(tablero);
+                    vista.mostrarMensaje("¡FELICIDADES! HA GANADO. Todas las casillas seguras descubiertas :)");
+                    juegoTerminado = true;
+                }
+            } 
+
+            if (!continuarJugando) {
                 break;
             }
-
-            procesarJugada(entrada);
             
-            if (verificarVictoria()) {
-                vista.mostrarTablero(tablero);
-                vista.mostrarMensaje("¡FELICIDADES! HAS GANADO :)");
-                juegoTerminado = true;
+            if (juegoTerminado) {
+                continuarJugando = vista.confirmarNuevaPartida();
             }
-        }
+
+        } 
     }
 
-  
-     // Convierte texto como "A5" en coordenadas [0][5] y ejecuta la acción.
-     // entrada Texto ingresado por el usuario
+    
+     //Convierte texto como "D A5" o "M B7" en acción y coordenadas, y ejecuta la lógica
+     // entrada Texto ingresado por el usuario (ej: D A5)
     
     private void procesarJugada(String entrada) {
-        // Validación básica de longitud
-        if (entrada == null || entrada.length() < 2) {
-            vista.mostrarMensaje("Coordenada inválida. Use formato LetraNumero (ej: A5).");
+        String[] partes = entrada.trim().toUpperCase().split("\\s+"); // Separa por espacios
+
+        if (partes.length < 2) {
+            vista.mostrarMensaje("Formato inválido. Use: [ACCION] [COORDENADA] (ej: D A5).");
+            return;
+        }
+
+        String accionStr = partes[0]; // "D" o "M"
+        String coordStr = partes[1]; // "A5"
+
+        if (coordStr.length() < 2) {
+            vista.mostrarMensaje("Coordenada inválida.");
             return;
         }
 
         try {
             // 1. PARSEO DE COORDENADAS
-            // Convierte la letra a índice de fila (A=0, B=1, etc.)
-            char letraFila = Character.toUpperCase(entrada.charAt(0));
+            char letraFila = coordStr.charAt(0);
             int fila = letraFila - 'A'; 
+            int columna = Integer.parseInt(coordStr.substring(1));
 
-            // El resto del string es el número de columna
-            int columna = Integer.parseInt(entrada.substring(1));
-
-            // Validar rangos (0-9)
-            if (fila < 0 || fila >= 10 || columna < 0 || columna >= 10) {
+            // Validar rangos
+            if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) {
                 vista.mostrarMensaje("Coordenada fuera de rango.");
                 return;
             }
 
-            // 2. Ejecutar accion
-            revelarCasilla(fila, columna);
+            Casilla casilla = tablero.obtenerCasilla(fila, columna);
+            if (casilla.isDescubierta()) {
+                 vista.mostrarMensaje("Esa casilla ya está descubierta.");
+                 return;
+            }
+
+            // 2. EJECUTAR ACCIÓN
+            if (accionStr.equals("M")) { // Lógica de Marcar/Bandera
+                
+                // Si ya está marcada, la desmarca. Si no, la marca.
+                boolean estaMarcada = casilla.isMarcada();
+                casilla.setMarcada(!estaMarcada); 
+                vista.mostrarMensaje(estaMarcada ? "Bandera removida." : "Bandera colocada.");
+
+            } else if (accionStr.equals("D")) { // Lógica de Descubrir
+                
+                if (casilla.isMarcada()) {
+                    vista.mostrarMensaje("¡Error! Debe quitar la bandera antes de intentar descubrir esta casilla.");
+                    return;
+                }
+                revelarCasilla(fila, columna);
+            } else {
+                vista.mostrarMensaje("Acción no reconocida. Use 'D' para Descubrir o 'M' para Marcar.");
+            }
 
         } catch (NumberFormatException e) {
-            vista.mostrarMensaje("Formato de número inválido.");
+            vista.mostrarMensaje("Formato de número inválido en la columna.");
         }
     }
 
-   
-     // Lógica principal de recursividad (Flood Fill).
     
+     // ALGORITMO FLOOD FILL (Recursividad) para la revelación automática de casillas
+     
     private void revelarCasilla(int f, int c) {
         Casilla casilla = tablero.obtenerCasilla(f, c);
 
-        // Caso Base 1: Si es nulo o ya está descubierta, no se hace nada
-        if (casilla == null || casilla.isDescubierta()) {
+        // Caso Base 1: Si es nulo, ya está descubierta, o tiene bandera (¡no debería llegar aquí!), finaliza.
+        if (casilla == null || casilla.isDescubierta() || casilla.isMarcada()) {
             return;
         }
 
-        // Revala la casilla actual
+        // Revela la casilla actual
         casilla.setDescubierta(true);
 
         // Caso2: Es una MINA -> Game Over
         if (casilla instanceof CasillaMina) {
             juegoTerminado = true;
-            vista.mostrarMensaje("¡BOOM! Has pisado una mina. Fin del juego :(");
-            revelarTodoElTablero(); // Opcional: mostrar dónde estaban las minas
+            vista.mostrarMensaje("¡BOOM! Ha pisado una mina. Game over :(");
+            revelarTodoElTablero(); 
             return;
         }
 
@@ -101,17 +154,17 @@ public class ControladorJuego {
         if (casilla instanceof CasillaVacia) {
             CasillaVacia vacia = (CasillaVacia) casilla;
 
-            // Algoritmo de expansión-Flood fill (Recursividad)
-            // Solo si el número es 0 (no tiene minas alrededor), se muestra alrededpr
+            // Solo si el número es 0 (no tiene minas alrededor), se abre alrededor (a los vecinos)
             if (vacia.getMinasAlrededor() == 0) {
-                // Recorre los 8 vecinos
+                // Recorre los 8 vecinos (incluyendo diagonales)
                 for (int i = -1; i <= 1; i++) {
                     for (int j = -1; j <= 1; j++) {
-                        // Llamada recursiva a los vecinos
+                        if (i == 0 && j == 0) continue;
+                        
                         int nuevaFila = f + i;
                         int nuevaCol = c + j;
-                        // Verifica límites antes de llamar para evitar errores (aunque obtenerCasilla maneja null)
-                        if (nuevaFila >= 0 && nuevaFila < 10 && nuevaCol >= 0 && nuevaCol < 10) {
+                        
+                        if (nuevaFila >= 0 && nuevaFila < FILAS && nuevaCol >= 0 && nuevaCol < COLUMNAS) {
                              revelarCasilla(nuevaFila, nuevaCol);
                         }
                     }
@@ -120,14 +173,16 @@ public class ControladorJuego {
         }
     }
 
+    
+     //Verifica si el jugador ha ganado.
+     
     private boolean verificarVictoria() {
+        int totalCasillasSeguras = (FILAS * COLUMNAS) - 10; 
         int casillasSegurasDescubiertas = 0;
-        int totalCasillasSeguras = (10 * 10) - 10; // Total - Minas
 
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
+        for (int i = 0; i < FILAS; i++) {
+            for (int j = 0; j < COLUMNAS; j++) {
                 Casilla c = tablero.obtenerCasilla(i, j);
-                // Si es segura y está descubierta, cuenta
                 if (c instanceof CasillaVacia && c.isDescubierta()) {
                     casillasSegurasDescubiertas++;
                 }
@@ -136,10 +191,12 @@ public class ControladorJuego {
         return casillasSegurasDescubiertas == totalCasillasSeguras;
     }
     
-    // Método suplementario para mostrsr todo al perder
+    
+     //Método auxiliar para mostrar todo el tablero (incluyendo minas) al perder
+     
     private void revelarTodoElTablero() {
-        for(int i=0; i<10; i++) {
-            for(int j=0; j<10; j++) {
+        for(int i=0; i<FILAS; i++) {
+            for(int j=0; j<COLUMNAS; j++) {
                 tablero.obtenerCasilla(i, j).setDescubierta(true);
             }
         }

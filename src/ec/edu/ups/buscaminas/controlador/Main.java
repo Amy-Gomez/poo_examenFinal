@@ -41,8 +41,8 @@ public class Main {
             }
 
             @Override
-            public String solicitarCoordenada() {
-                System.out.print("Ingresa coordenada (ej: A5, SALIR): ");
+            public String solicitarJugada() {
+                System.out.print("Ingresa jugada (ej: D A5, M B7, o SALIR): ");
                 // Se usa nextLine() para capturar toda la entrada y evitar errores de procesamiento
                 return sc.nextLine().trim(); 
             }
