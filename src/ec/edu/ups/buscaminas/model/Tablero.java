@@ -1,15 +1,14 @@
 package ec.edu.ups.buscaminas.model;
-
+//Algoritmo
 import java.util.Random; 
 
 public class Tablero {
-    // Atributos
+    
     private Casilla[][] casillas;
     private final int FILAS = 10;
     private final int COLUMNAS = 10;
     private final int NUM_MINAS = 10;
 
-    // Constructor
     public Tablero() {
         this.casillas = new Casilla[FILAS][COLUMNAS];
         inicializarTablero();
