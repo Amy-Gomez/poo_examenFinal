@@ -1,9 +1,11 @@
-package CE.educación.Unión Postal Universal.buscaminas.vista;
+package ec.edu.ups.buscaminas.vista;
 
 import java.util.Scanner;
 
-import CE.educación.Unión Postal Universal.buscaminas.modelo.Casilla;
-import CE.educación.Unión Postal Universal.buscaminas.modelo.Tablero;
+import ec.edu.ups.buscaminas.model.Casilla;
+import ec.edu.ups.buscaminas.model.CasillaMina;
+import ec.edu.ups.buscaminas.model.CasillaVacia;
+import ec.edu.ups.buscaminas.model.Tablero;
 
 public class VistaConsola implements IVista {
 
@@ -13,47 +15,45 @@ public class VistaConsola implements IVista {
     public void mostrarTablero(Tablero tablero) {
         Casilla[][] casillas = tablero.getCasillas();
 
-        // Encabezado de columnas
+        // Encabezado columnas
         System.out.print("   ");
         for (int col = 1; col <= 10; col++) {
             System.out.printf("%2d ", col);
         }
         System.out.println();
 
-        // Filas A–H
+        // Filas A–J
         for (int fila = 0; fila < casillas.length; fila++) {
-            char letraFila = (char) ('A' + fila);
-            System.out.print(" " + letraFila + " ");
+            char letra = (char) ('A' + fila);
+            System.out.print(" " + letra + " ");
 
             for (int col = 0; col < casillas[fila].length; col++) {
                 Casilla c = casillas[fila][col];
-                System.out.printf("%2s ", obtenerSimboloCasilla(c));
+                System.out.printf("%2s ", obtenerSimbolo(c));
             }
             System.out.println();
         }
         System.out.println();
     }
 
-    private String obtenerSimboloCasilla(Casilla c) {
+    // Decide cómo dibujar cada casilla
+    private String obtenerSimbolo(Casilla c) {
 
-        // Descubierta
         if (c.isDescubierta()) {
-
-            if (c.esMina()) {
-                return "X"; // mina descubierta por explotar
+            if (c instanceof CasillaMina) {
+                return "X";
             }
-
-            int minas = c.getMinasAlrededor();
-            return minas == 0 ? " " : String.valueOf(minas);
+            if (c instanceof CasillaVacia) {
+                int minas = ((CasillaVacia) c).getMinasAlrededor();
+                return minas == 0 ? " " : String.valueOf(minas);
+            }
         }
 
-        // Marcada (bandera)
         if (c.isMarcada()) {
             return "F";
         }
 
-        // Oculta
-        return "#";
+        return "#"; // oculta
     }
 
     @Override
@@ -61,37 +61,36 @@ public class VistaConsola implements IVista {
         System.out.println(mensaje);
     }
 
-    /**
-     * Solicita jugada en formato:
-     *  - "D A5" descubrir A5
-     *  - "M C10" marcar C10
-     */
     @Override
-    public String SolicitarJugada() {
+    public String solicitarJugada() {
+
         while (true) {
+            System.out.print("Ingrese jugada (ej: D A5 o M B7): ");
+            String input = scanner.nextLine().trim().toUpperCase();
 
-            System.out.print("Ingrese jugada (ej: D A5 o M C10): ");
-            String linea = scanner.nextLine().trim().toUpperCase();
-
-            // Validar formato: ACCIÓN + ESPACIO + COORDENADA
-            if (linea.matches("^[DM] [A-H](10|[1-9])$")) {
-                return linea;
+            // Validación EXACTA que espera el controlador
+            if (input.matches("^[DM] [A-J](10|[1-9])$")) {
+                return input;
             }
 
-            System.out.println("⚠ Formato inválido. Ejemplos válidos: D A5   M C10");
+            if (input.equalsIgnoreCase("SALIR")) {
+                return "SALIR";
+            }
+
+            System.out.println("⚠ Entrada inválida. Ejemplos válidos: D A5   M C10");
         }
     }
 
     @Override
     public boolean confirmarNuevaPartida() {
         while (true) {
-            System.out.print("¿Deseas jugar de nuevo? (S/N): ");
+            System.out.print("¿Deseas jugar nuevamente? (S/N): ");
             String r = scanner.nextLine().trim().toUpperCase();
 
             if (r.equals("S")) return true;
             if (r.equals("N")) return false;
 
-            System.out.println("⚠ Respuesta inválida. Use S o N.");
+            System.out.println("⚠ Solo S o N.");
         }
     }
 }
