@@ -1,104 +1,97 @@
-package ec.edu.ups.buscaminas.vista;
+package CE.educación.Unión Postal Universal.buscaminas.vista;
 
 import java.util.Scanner;
-import ec.edu.ups.buscaminas.model.Casilla;
-import ec.edu.ups.buscaminas.model.Tablero;
+
+import CE.educación.Unión Postal Universal.buscaminas.modelo.Casilla;
+import CE.educación.Unión Postal Universal.buscaminas.modelo.Tablero;
 
 public class VistaConsola implements IVista {
 
     private final Scanner scanner = new Scanner(System.in);
 
     @Override
-    public void mostrarBienvenida() {
-        System.out.println("=== BUSCAMINAS UPS ===");
-        System.out.println("Formato de coordenada: A1..H10");
-        System.out.println("Acciones: D = descubrir, M = marcar/desmarcar");
-        System.out.println();
-    }
-
-    @Override
-    public char pedirAccion() {
-        while (true) {
-            System.out.print("Acción (D/M): ");
-            String input = scanner.nextLine().trim().toUpperCase();
-
-            if (input.equals("D") || input.equals("M")) {
-                return input.charAt(0);
-            }
-
-            System.out.println("⚠ Acción inválida. Use D o M.");
-        }
-    }
-
-    @Override
-    public String pedirCoordenada() {
-        while (true) {
-            System.out.print("Ingrese coordenada (ej: A5, C10): ");
-            String coord = scanner.nextLine().trim().toUpperCase();
-
-            if (coord.matches("^[A-H](10|[1-9])$")) {
-                return coord;
-            }
-
-            System.out.println("⚠ Coordenada inválida. Use A1..H10.");
-        }
-    }
-
-    @Override
-    public void mostrarTablero(Tablero tablero, boolean mostrarMinas) {
+    public void mostrarTablero(Tablero tablero) {
         Casilla[][] casillas = tablero.getCasillas();
 
-        // Encabezado columnas
+        // Encabezado de columnas
         System.out.print("   ");
         for (int col = 1; col <= 10; col++) {
             System.out.printf("%2d ", col);
         }
         System.out.println();
 
+        // Filas A–H
         for (int fila = 0; fila < casillas.length; fila++) {
             char letraFila = (char) ('A' + fila);
             System.out.print(" " + letraFila + " ");
 
             for (int col = 0; col < casillas[fila].length; col++) {
                 Casilla c = casillas[fila][col];
-                String simbolo = obtenerSimboloCasilla(c, mostrarMinas);
-                System.out.printf("%2s ", simbolo);
+                System.out.printf("%2s ", obtenerSimboloCasilla(c));
             }
             System.out.println();
         }
         System.out.println();
     }
 
-    private String obtenerSimboloCasilla(Casilla c, boolean mostrarMinas) {
+    private String obtenerSimboloCasilla(Casilla c) {
 
+        // Descubierta
         if (c.isDescubierta()) {
+
             if (c.esMina()) {
-                return mostrarMinas ? "X" : ".";
-            } else {
-                int minas = c.getMinasAlrededor();
-                return minas == 0 ? " " : String.valueOf(minas);
+                return "X"; // mina descubierta por explotar
             }
+
+            int minas = c.getMinasAlrededor();
+            return minas == 0 ? " " : String.valueOf(minas);
         }
 
-        if (c.isMarcada()) return "F";
+        // Marcada (bandera)
+        if (c.isMarcada()) {
+            return "F";
+        }
 
-        if (mostrarMinas && c.esMina()) return "X";
-
+        // Oculta
         return "#";
     }
 
     @Override
-    public void mostrarVictoria() {
-        System.out.println("🎉 ¡Felicidades, ganaste! 🎉");
+    public void mostrarMensaje(String mensaje) {
+        System.out.println(mensaje);
+    }
+
+    /**
+     * Solicita jugada en formato:
+     *  - "D A5" descubrir A5
+     *  - "M C10" marcar C10
+     */
+    @Override
+    public String SolicitarJugada() {
+        while (true) {
+
+            System.out.print("Ingrese jugada (ej: D A5 o M C10): ");
+            String linea = scanner.nextLine().trim().toUpperCase();
+
+            // Validar formato: ACCIÓN + ESPACIO + COORDENADA
+            if (linea.matches("^[DM] [A-H](10|[1-9])$")) {
+                return linea;
+            }
+
+            System.out.println("⚠ Formato inválido. Ejemplos válidos: D A5   M C10");
+        }
     }
 
     @Override
-    public void mostrarDerrota() {
-        System.out.println("💣 BOOM... Perdiste. 💣");
-    }
+    public boolean confirmarNuevaPartida() {
+        while (true) {
+            System.out.print("¿Deseas jugar de nuevo? (S/N): ");
+            String r = scanner.nextLine().trim().toUpperCase();
 
-    @Override
-    public void mostrarError(String mensaje) {
-        System.out.println("⚠ ERROR: " + mensaje);
+            if (r.equals("S")) return true;
+            if (r.equals("N")) return false;
+
+            System.out.println("⚠ Respuesta inválida. Use S o N.");
+        }
     }
 }
