@@ -15,9 +15,9 @@ public class VistaConsola implements IVista {
     public void mostrarTablero(Tablero tablero) {
         Casilla[][] casillas = tablero.getCasillas();
 
-        // Encabezado columnas
+        // Encabezado columnas 0–9 (como la vista provisional)
         System.out.print("   ");
-        for (int col = 1; col <= 10; col++) {
+        for (int col = 0; col < 10; col++) {
             System.out.printf("%2d ", col);
         }
         System.out.println();
@@ -65,11 +65,11 @@ public class VistaConsola implements IVista {
     public String solicitarJugada() {
 
         while (true) {
-            System.out.print("Ingrese jugada (ej: D A5 o M B7): ");
+            System.out.print("Ingrese jugada (ej: D A5, M B7 o SALIR): ");
             String input = scanner.nextLine().trim().toUpperCase();
 
-            // Validación EXACTA que espera el controlador
-            if (input.matches("^[DM] [A-J](10|[1-9])$")) {
+            // Validación columnas 0–9 ///////// IMPORTANTE ////////////
+            if (input.matches("^[DM] [A-J][0-9]$")) {
                 return input;
             }
 
@@ -77,7 +77,7 @@ public class VistaConsola implements IVista {
                 return "SALIR";
             }
 
-            System.out.println("⚠ Entrada inválida. Ejemplos válidos: D A5   M C10");
+            System.out.println("⚠ Entrada inválida. Ejemplos válidos: D A0, D A5, M C9");
         }
     }
 
