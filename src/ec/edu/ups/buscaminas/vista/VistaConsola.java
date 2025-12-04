@@ -63,21 +63,26 @@ public class VistaConsola implements IVista {
 
     @Override
     public String solicitarJugada() {
-
         while (true) {
-            System.out.print("Ingrese jugada (ej: D A5, M B7 o SALIR): ");
+            System.out.print("Ingrese opción, jugada (ej: D A5) o comando (GUARDAR/SALIR): ");
             String input = scanner.nextLine().trim().toUpperCase();
 
-            // Validación columnas 0–9 ///////// IMPORTANTE ////////////
+            // 1. Validar opciones de Menú (1, 2, 3)
+            if (input.matches("^[1-3]$")) {
+                return input;
+            }
+
+            // 2. Validar Comandos Globales
+            if (input.equals("SALIR") || input.equals("GUARDAR")) {
+                return input;
+            }
+
+            // 3. Validar Jugadas del Tablero (D A5, M B9)
             if (input.matches("^[DM] [A-J][0-9]$")) {
                 return input;
             }
 
-            if (input.equalsIgnoreCase("SALIR")) {
-                return "SALIR";
-            }
-
-            System.out.println("⚠ Entrada inválida. Ejemplos válidos: D A0, D A5, M C9");
+            System.out.println("⚠ Entrada inválida. Intente de nuevo.");
         }
     }
 
