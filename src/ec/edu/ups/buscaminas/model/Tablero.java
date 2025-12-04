@@ -1,9 +1,14 @@
 package ec.edu.ups.buscaminas.model;
-//Algoritmo
+
+import java.io.Serializable; // Importar la interfaz Serializable
 import java.util.Random; 
 
-public class Tablero {
+// Algoritmo
+public class Tablero implements Serializable { // Implementar Serializable
     
+    // Identificador de serialización para asegurar la compatibilidad al cargar
+    private static final long serialVersionUID = 1L; 
+
     private Casilla[][] casillas;
     private final int FILAS = 10;
     private final int COLUMNAS = 10;
@@ -99,4 +104,4 @@ public class Tablero {
     public Casilla[][] getCasillas() {
         return casillas;
     }
-} 
+}

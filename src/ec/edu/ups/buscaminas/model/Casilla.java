@@ -1,6 +1,13 @@
 package ec.edu.ups.buscaminas.model;
-// Aqui definimos que es una casilla 
-public abstract class Casilla { 
+
+import java.io.Serializable; // 1. Importar la interfaz Serializable
+
+// define que es una casilla 
+public abstract class Casilla implements Serializable { // 2. Implementar la interfaz
+    
+    // 3. Añadir el serialVersionUID para evitar errores de compatibilidad
+    private static final long serialVersionUID = 1L; 
+
     private boolean descubierta;
     private boolean marcada;
 

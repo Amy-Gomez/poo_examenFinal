@@ -1,6 +1,11 @@
 package ec.edu.ups.buscaminas.model;
-//Aqui definimos las casillas seguras y la logica de los numeros.
-public class CasillaVacia extends Casilla { 
+
+//Se define las casillas seguras y la logica de los numeros.
+public class CasillaVacia extends Casilla {
+    
+    // Se añade el serialVersionUID, aunque hereda Serializable de Casilla
+    private static final long serialVersionUID = 1L; 
+
     private int minasAlrededor;
 
     public CasillaVacia() {
@@ -18,6 +23,7 @@ public class CasillaVacia extends Casilla {
 
     @Override
     public String obtenerSimbolo() {
+        // Si no hay minas alrededor, muestra un espacio. De lo contrario, muestra el número.
         return (minasAlrededor == 0) ? " " : String.valueOf(minasAlrededor);
     }
 }

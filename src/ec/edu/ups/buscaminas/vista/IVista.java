@@ -1,8 +1,7 @@
 package ec.edu.ups.buscaminas.vista;
 
 import ec.edu.ups.buscaminas.model.Tablero;
-//Contrato (Interfaz) que define cómo el Controlador (Persona 2)
-//se comunica con la capa de Presentación (Vista, Persona 3).
+//Contrato (Interfaz) que define cómo el Controlador se comunica con la capa de Presentación (Vista)
 // Esto permite el aislamiento entre capas (MVC).
 public interface IVista {
 	void mostrarTablero(Tablero tablero);
