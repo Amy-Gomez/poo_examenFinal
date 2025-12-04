@@ -19,52 +19,84 @@ public class ControladorJuego {
     }
     //Inicia el bucle principal del programa, que maneja múltiples partidas
     public void iniciarJuego() {
-        vista.mostrarMensaje("=== BUSCAMINAS 1.0 ===");
-        boolean continuarJugando= true;
-        
-     // Bucle extermo: Controla si el jugador quiere iniciar nuevas partidas
-        
+        vista.mostrarMensaje("===== BUSCAMINAS 1.0 =====");
+
+        boolean continuarJugando = true;
+
         while (continuarJugando) {
-            
-            this.tablero = new Tablero(); 
-            this.juegoTerminado = false;
-            vista.mostrarMensaje("¡Nueva Partida Iniciada! Use D A5 (Descubrir) o M B7 (Marcar/Bandera). O escriba SALIR si desea finalizar el juego.");
 
-            // Bucle interno: Controla el flujo de una sola partida
+            // 🔥 Nuevo menú de inicio
+            vista.mostrarMensaje("\nMENÚ PRINCIPAL:");
+            vista.mostrarMensaje("[N] Nueva Partida");
+            vista.mostrarMensaje("[C] Cargar Partida");
+            vista.mostrarMensaje("[S] Salir");
+
+            String opcion = vista.solicitarEntrada("Seleccione una opción: ").trim().toUpperCase();
+
+            switch (opcion) {
+                case "N":
+                    tablero = new Tablero();
+                    break;
+                case "C":
+                    if (GestorPersistencia.existePartidaGuardada()) {
+                        tablero = GestorPersistencia.cargarPartida();
+                        vista.mostrarMensaje("♻ Partida cargada exitosamente.");
+                    } else {
+                        vista.mostrarMensaje("❌ No hay partida guardada, iniciando juego nuevo...");
+                        tablero = new Tablero();
+                    }
+                    break;
+                case "S":
+                    vista.mostrarMensaje("👋 ¡Gracias por jugar!");
+                    return;
+                default:
+                    vista.mostrarMensaje("Opción no válida.");
+                    continue;
+            }
+
+            juegoTerminado = false;
+            vista.mostrarMensaje("\n📌 Comandos:   D A5 (Descubrir)  |  M A5 (Marcar)  |  G (Guardar)  |  SALIR");
+
             while (!juegoTerminado) {
-                vista.mostrarTablero(tablero);
-                String entrada = vista.solicitarJugada(); 
 
-                // 2. Control de Salida
-                if (entrada.equalsIgnoreCase("SALIR")) {
-                    juegoTerminado = true;
-                    continuarJugando = false; 
-                    vista.mostrarMensaje("Juego cancelado. ¡Hasta pronto!");
-                    break; 
+                vista.mostrarTablero(tablero);
+                String entrada = vista.solicitarJugada().toUpperCase();
+
+                if (entrada.equals("SALIR")) {
+                    vista.mostrarMensaje("Juego cancelado.");
+                    continuarJugando = false;
+                    break;
+                }
+
+                if (entrada.equals("G")) { // 🔥 Guardar partida
+                    if (GestorPersistencia.guardarPartida(tablero)) {
+                        vista.mostrarMensaje("📁 Partida guardada correctamente.");
+                    } else {
+                        vista.mostrarMensaje("❌ Error al guardar.");
+                    }
+                    continue;
                 }
 
                 procesarJugada(entrada);
-                
-                // 3. Verificación de Victoria/Derrota
+
                 if (juegoTerminado) {
-                    vista.mostrarTablero(tablero); 
-                } else if (verificarVictoria()) {
                     vista.mostrarTablero(tablero);
-                    vista.mostrarMensaje("¡FELICIDADES! HA GANADO. Todas las casillas seguras descubiertas :)");
+                    break;
+                }
+
+                if (verificarVictoria()) {
+                    vista.mostrarTablero(tablero);
+                    vista.mostrarMensaje("🎉 ¡FELICIDADES! Todas las casillas seguras descubiertas.");
                     juegoTerminado = true;
                 }
-            } 
-
-            if (!continuarJugando) {
-                break;
             }
-            
-            if (juegoTerminado) {
+
+            if (continuarJugando) {
                 continuarJugando = vista.confirmarNuevaPartida();
             }
-
-        } 
+        }
     }
+
 
     
      //Convierte texto como "D A5" o "M B7" en acción y coordenadas, y ejecuta la lógica
