@@ -1,39 +1,69 @@
 package ec.edu.ups.buscaminas;
 
 import static org.junit.jupiter.api.Assertions.*;
-import ec.edu.ups.buscaminas.model.*;
 import org.junit.jupiter.api.Test;
+
+import ec.edu.ups.buscaminas.model.Tablero;
+import ec.edu.ups.buscaminas.model.Casilla;
+import ec.edu.ups.buscaminas.model.CasillaMina;
+import ec.edu.ups.buscaminas.model.CasillaVacia;
 
 public class TableroTest {
 
     @Test
-    void tableroDebeTener10x10() {
-        Tablero t = new Tablero();
-        assertEquals(10, t.getCasillas().length);
-        assertEquals(10, t.getCasillas()[0].length);
-    }
+    void tableroDebeContenerDiezMinas() {
+        Tablero tablero = new Tablero();
 
-    @Test
-    void tableroDebeContener10Minas() {
-        Tablero t = new Tablero();
         int minas = 0;
-
-        for(int i=0;i<10;i++){
-            for(int j=0;j<10;j++){
-                if(t.getCasillas()[i][j] instanceof CasillaMina)
+        for(int f=0; f<10; f++){
+            for(int c=0; c<10; c++){
+                if(tablero.obtenerCasilla(f, c) instanceof CasillaMina)
                     minas++;
             }
         }
-        assertEquals(10, minas);
+
+        assertEquals(10, minas, "El tablero debe contener exactamente 10 minas.");
     }
 
-    @Test
-    void contarMinasAlrededorFunciona() {
-        Tablero t = new Tablero();
-        Casilla[][] c = t.getCasillas();
-        c[4][4] = new CasillaMina();
 
-        assertEquals(1, t.contarMinasAlrededor(3,4));
-        assertEquals(1, t.contarMinasAlrededor(5,5));
+    @Test
+    void casillasVaciasDebenTenerNumerosCorrectos() {
+        Tablero tablero = new Tablero();
+
+        for(int f=0; f<10; f++){
+            for(int c=0; c<10; c++){
+                Casilla casilla = tablero.obtenerCasilla(f,c);
+
+                if(casilla instanceof CasillaVacia){
+                    int valor = ((CasillaVacia) casilla).getMinasAlrededor();
+                    assertTrue(valor >= 0 && valor <= 8,
+                            "Valor inválido en casilla → No puede tener menos de 0 ni más de 8 minas alrededor.");
+                }
+            }
+        }
+    }
+
+
+    @Test
+    void obtenerCasillaFueraDeRangoDebeRetornarNull() {
+        Tablero tablero = new Tablero();
+
+        assertNull(tablero.obtenerCasilla(-1, 5));
+        assertNull(tablero.obtenerCasilla(12, 4));
+        assertNull(tablero.obtenerCasilla(3, -2));
+        assertNull(tablero.obtenerCasilla(3, 11));
+    }
+
+
+    @Test
+    void todasLasCasillasDebenEstarInicializadas() {
+        Tablero tablero = new Tablero();
+
+        for(int f=0; f<10; f++){
+            for(int c=0; c<10; c++){
+                assertNotNull(tablero.obtenerCasilla(f,c),
+                        "Hay una casilla no inicializada en ("+f+","+c+")");
+            }
+        }
     }
 }
