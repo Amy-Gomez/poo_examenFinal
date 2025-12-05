@@ -1,12 +1,10 @@
 package ec.edu.ups.buscaminas.model;
 
-import java.io.Serializable; // 1. Importar la interfaz Serializable
+import java.io.Serializable;
 
-// define que es una casilla 
-public abstract class Casilla implements Serializable { // 2. Implementar la interfaz
-    
-    // 3. Añadir el serialVersionUID para evitar errores de compatibilidad
-    private static final long serialVersionUID = 1L; 
+public abstract class Casilla implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private boolean descubierta;
     private boolean marcada;
@@ -16,21 +14,11 @@ public abstract class Casilla implements Serializable { // 2. Implementar la int
         this.marcada = false;
     }
 
-    public boolean isDescubierta() {
-        return descubierta;
-    }
+    public boolean isDescubierta() { return descubierta; }
+    public void setDescubierta(boolean descubierta) { this.descubierta = descubierta; }
 
-    public void setDescubierta(boolean descubierta) {
-        this.descubierta = descubierta;
-    }
+    public boolean isMarcada() { return marcada; }
+    public void setMarcada(boolean marcada) { this.marcada = marcada; }
 
-    public boolean isMarcada() {
-        return marcada;
-    }
-
-    public void setMarcada(boolean marcada) {
-        this.marcada = marcada;
-    }
-    
     public abstract String obtenerSimbolo();
 }
