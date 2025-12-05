@@ -1,4 +1,4 @@
-package ec.edu.ups.util;
+package ec.edu.ups.buscaminas.util;
 
 import java.io.*;
 import ec.edu.ups.buscaminas.model.Tablero;
@@ -36,3 +36,4 @@ public class GestorPersistencia {
         return archivo.exists() && archivo.length() > 0;
     }
 }
+
