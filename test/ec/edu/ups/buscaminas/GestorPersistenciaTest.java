@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ec.edu.ups.buscaminas.model.Tablero;
-import ec.edu.ups.util.GestorPersistencia;
+import ec.edu.ups.util.buscaminas.GestorPersistencia;
 
 public class GestorPersistenciaTest {
 
@@ -41,3 +41,4 @@ public class GestorPersistenciaTest {
             "❌ El archivo debería existir después de guardar partida.");
     }
 }
+
