@@ -12,11 +12,11 @@ public class GestorPersistencia {
 
     private static final String RUTA_ARCHIVO = "partida_guardada.dat";
 
-    /**
-     * Guarda el tablero actual del juego en un archivo binario.
-     * @param tablero El objeto Tablero a guardar.
-     * @throws Exception Si ocurre un error de I/O o serialización.
-     */
+    
+     // Guarda el tablero actual del juego en un archivo binario.
+     // tablero El objeto Tablero a guardar.
+     // @throws Exception Si ocurre un error de I/O o serialización.
+    
     public static void guardarJuego(Tablero tablero) throws Exception {
         // Renombrado de guardarPartida() a guardarJuego() para compatibilidad con ControladorJuego.java
         try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(RUTA_ARCHIVO))) {
@@ -27,11 +27,11 @@ public class GestorPersistencia {
         }
     }
 
-    /**
-     * Carga una partida previamente guardada.
-     * @return El objeto Tablero cargado o null si no existe una partida guardada.
-     * @throws Exception Si ocurre un error de I/O o deserialización.
-     */
+    
+     // Carga una partida previamente guardada.
+     // @return El objeto Tablero cargado o null si no existe una partida guardada.
+     // @throws Exception Si ocurre un error de I/O o deserialización.
+     
     public static Tablero cargarJuego() throws Exception {
         // Renombrado de cargarPartida() a cargarJuego() para compatibilidad con ControladorJuego.java
         File archivo = new File(RUTA_ARCHIVO);
