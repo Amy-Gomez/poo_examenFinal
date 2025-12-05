@@ -35,7 +35,9 @@ src/
 │   ├── GestorPersistencia.java  # Serializa/Deserializa el objeto Tablero (.dat).
 │   └── JugadaInvalidaException.java # Excepción personalizada para errores de jugada.
 └── test/
-    └── ... (Ejemplos de pruebas JUnit si existieran)
+    └── CasillaTest.java         # Asegura que la casilla se comporta correctamente.
+    └── GestorPersistenciaTest.java  # Asegura que guardar y cargar el juego funciona.
+    └── TableroTest.java         # Asegura que el tablero y el algoritmo de contar minas funcionan bien. 
 ```
 ---
 ## <p style="color:#a64d79;"> Implementaciones y Mejoras Técnicas</p>
